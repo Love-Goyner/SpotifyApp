@@ -22,7 +22,7 @@ function secondsToMinutesSeconds(seconds) {
 async function getSongs(folder) {
 
     currFolder = folder;
-    let a = await fetch(`http://127.0.0.1:5500/${folder}/`)
+    let a = await fetch(`https://love-goyner.github.io/SpotifyApp/${folder}/`)
     let response = await a.text()
     // console.log(response)
 
@@ -65,7 +65,7 @@ async function getSongs(folder) {
         e.addEventListener("click", element=>{
             let songname2 = e.querySelector(".info").firstElementChild.innerHTML;
             console.log(songname2)
-            let songname = `http://127.0.0.1:5500/${currFolder}/${songname2}`;
+            let songname = `https://love-goyner.github.io/SpotifyApp/${currFolder}/${songname2}`;
             playmusic(songname);
         })
     });
@@ -90,7 +90,7 @@ const playmusic = (track, pause = false) => {
 
 async function displayAlbums(){
 
-    let a = await fetch(`http://127.0.0.1:5500/songs/`)
+    let a = await fetch(`https://love-goyner.github.io/SpotifyApp/songs/`)
     let response = await a.text()
     let div = document.createElement("div")
     div.innerHTML = response;
@@ -103,7 +103,7 @@ async function displayAlbums(){
         
         if(e.href.includes("/songs/")){
             let folders = (e.href.split("/").slice(-1)[0])
-            let a = await fetch(`http://127.0.0.1:5500/songs/${folders}/info.json`)
+            let a = await fetch(`https://love-goyner.github.io/SpotifyApp/songs/${folders}/info.json`)
             let response = await a.json()
             // console.log(response);
             cardContainer.innerHTML = cardContainer.innerHTML + `<div data-folder="${folders}" class="card">
@@ -133,7 +133,7 @@ async function displayAlbums(){
 
             //play the music on clicking on the card
             let refinedSongs = songs.map((song) => song.replaceAll("%20", " "));
-            let truesongssss = `http://127.0.0.1:5500/songs/${foldername}/${refinedSongs[0]}`
+            let truesongssss = `https://love-goyner.github.io/SpotifyApp/songs/${foldername}/${refinedSongs[0]}`
             playmusic(truesongssss)
 
 
@@ -148,7 +148,7 @@ async function main() {
     // console.log(songs);
 
     let replace = songs[0].replaceAll("%20", " ");
-    let track1 = `http://127.0.0.1:5500/${currFolder}/${replace}`
+    let track1 = `https://love-goyner.github.io/SpotifyApp/${currFolder}/${replace}`
     playmusic(track1, true);
 
     //making the div for cards automatically
@@ -217,7 +217,7 @@ async function main() {
         let index = songs.indexOf(currentsong.src.split("/").slice(-1)[0])
 
         let replace1 = songs[index-1].replaceAll("%20", " ");
-        let truesongs = `http://127.0.0.1:5500/${currFolder}/${replace1}` 
+        let truesongs = `https://love-goyner.github.io/SpotifyApp/${currFolder}/${replace1}` 
         if((index-1) >= 0){
             playmusic(truesongs)
         }
