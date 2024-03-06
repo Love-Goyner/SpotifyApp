@@ -115,7 +115,7 @@ async function displayAlbums(){
 
             </div>
 
-            <img src="/songs/${folders}/cover.jpg" alt="songs-playlist">
+            <img src="https://love-goyner.github.io/songs/${folders}/cover.jpg" alt="songs-playlist">
             <h2>${response.title}</h2>
             <p>${response.description}</p>
 
