@@ -100,7 +100,7 @@ async function displayAlbums(){
     for (let index = 0; index < array.length; index++) {
         const e = array[index];
         
-        if(e.href.includes("/songs/")){
+        if(e.href.includes("/songs") && !e.href.includes(".htaccess")){
             let folders = (e.href.split("/").slice(-1)[0])
             let a = await fetch(`http://127.0.0.1:5500/songs/${folders}/info.json`)
             let response = await a.json()
