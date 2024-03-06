@@ -21,7 +21,7 @@ function secondsToMinutesSeconds(seconds) {
 async function getSongs(folder) {
 
     currFolder = folder;
-    let a = await fetch(`http://127.0.0.1:5500/${folder}/`)
+    let a = await fetch(`/${folder}/`)
     let response = await a.text()
     // console.log(response)
 
@@ -62,10 +62,8 @@ async function getSongs(folder) {
     //on clicking the song will play according to the choice
     Array.from(document.querySelector(".songList").getElementsByTagName("li")).forEach(e => {
         e.addEventListener("click", element=>{
-            let songname2 = e.querySelector(".info").firstElementChild.innerHTML;
-            console.log(songname2)
-            let songname = `http://127.0.0.1:5500/${currFolder}/${songname2}`;
-            playmusic(songname);
+            let songname2 = e.querySelector(".info").firstElementChild.innerHTML.trim();
+            playmusic(songname2);
         })
     });
 
@@ -75,7 +73,7 @@ async function getSongs(folder) {
 
 const playmusic = (track, pause = false) => {
     // let audio = new Audio(track);
-    currentsong.src = track;
+    currentsong.src = `/${currFolder}/` + track;
     console.log(track);
 
     if(!pause){
@@ -83,26 +81,26 @@ const playmusic = (track, pause = false) => {
         playthissong.src = "pause.svg"
     }
     
-    document.querySelector(".songinfo").innerHTML = decodeURI(track.split(`${currFolder}/`)[1]);
+    document.querySelector(".songinfo").innerHTML = decodeURI(track);
     document.querySelector(".songtime").innerHTML = "00:00 / 00:00"
 }
 
 async function displayAlbums(){
 
-    let a = await fetch(`http://127.0.0.1:5500/songs/`)
+    let a = await fetch(`/songs/`)
     let response = await a.text()
     let div = document.createElement("div")
     div.innerHTML = response;
-    let anchors = div.getElementsByTagName("a")
+    let anchors = div.querySelectorAll("a[href^='/songs/']");
 
     let cardContainer = document.querySelector(".cardContainer")
     let array = Array.from(anchors)
     for (let index = 0; index < array.length; index++) {
         const e = array[index];
         
-        if(e.href.includes("/songs") && !e.href.includes(".htaccess")){
+        if(!e.href.includes(".htaccess")){
             let folders = (e.href.split("/").slice(-1)[0])
-            let a = await fetch(`http://127.0.0.1:5500/songs/${folders}/info.json`)
+            let a = await fetch(`/songs/${folders}/info.json`)
             let response = await a.json()
             // console.log(response);
             cardContainer.innerHTML = cardContainer.innerHTML + `<div data-folder="${folders}" class="card">
@@ -115,12 +113,15 @@ async function displayAlbums(){
 
             </div>
 
-            <img src="https://love-goyner.github.io/songs/${folders}/cover.jpg" alt="songs-playlist">
+            <img src="/songs/${folders}/cover.jpg" alt="songs-playlist">
             <h2>${response.title}</h2>
             <p>${response.description}</p>
 
         </div>`
         }
+
+
+        ///sdkjcnsdnc kjsncnknfiewfkesbnfnk
     }
 
        //clicking on the card and the song list cahnges
@@ -130,10 +131,9 @@ async function displayAlbums(){
             songs = await getSongs(`songs/${foldername}`);
             console.log(songs);
 
+
             //play the music on clicking on the card
-            let refinedSongs = songs.map((song) => song.replaceAll("%20", " "));
-            let truesongssss = `http://127.0.0.1:5500/songs/${foldername}/${refinedSongs[0]}`
-            playmusic(truesongssss)
+            playmusic(songs[0])
 
 
 
@@ -146,9 +146,7 @@ async function main() {
     await getSongs("songs/Angry_(mood)");
     // console.log(songs);
 
-    let replace = songs[0].replaceAll("%20", " ");
-    let track1 = `http://127.0.0.1:5500/${currFolder}/${replace}`
-    playmusic(track1, true);
+    playmusic(songs[0], true);
 
     //making the div for cards automatically
     displayAlbums();
@@ -188,6 +186,16 @@ async function main() {
         // console.log(currentsong.currentTime, currentsong.duration);
         document.querySelector(".songtime").innerHTML = `${secondsToMinutesSeconds(currentsong.currentTime)} / ${secondsToMinutesSeconds(currentsong.duration)}`
         document.querySelector(".circle").style.left = (currentsong.currentTime/currentsong.duration)*100 + "%";
+
+        //when seekbar reaches end it start nextsong
+        if(parseInt(currentsong.currentTime) == parseInt(currentsong.duration))
+        {
+            let index = songs.indexOf(currentsong.src.split("/").slice(-1)[0])
+
+            if((index+1) < songs.length){
+                playmusic(songs[index+1])
+            }
+        }
     })
 
     //setting up the seekbar to act like a loading
@@ -215,10 +223,8 @@ async function main() {
     previous.addEventListener("click", ()=>{
         let index = songs.indexOf(currentsong.src.split("/").slice(-1)[0])
 
-        let replace1 = songs[index-1].replaceAll("%20", " ");
-        let truesongs = `http://127.0.0.1:5500/${currFolder}/${replace1}` 
         if((index-1) >= 0){
-            playmusic(truesongs)
+            playmusic(songs[index-1])
         }
     })
 
@@ -226,10 +232,8 @@ async function main() {
     next.addEventListener("click", ()=>{
         let index = songs.indexOf(currentsong.src.split("/").slice(-1)[0])
 
-        let replace2 = songs[index+1].replaceAll("%20", " ");
-        let truesongs = `http://127.0.0.1:5500/${currFolder}/${replace2}`
         if((index+1) < songs.length){
-            playmusic(truesongs)
+            playmusic(songs[index+1])
         }
     })
 
@@ -237,6 +241,9 @@ async function main() {
     document.querySelector(".range").getElementsByTagName("input")[0].addEventListener("change", (e)=>{
         // console.log(e.target.value)
         currentsong.volume = parseInt(e.target.value)/100;
+        if(currentsong.volume > 0){
+            document.querySelector(".volumebutton img").src = "volume.svg";
+        }
     })
 
     //volumn goes silent on clicking on the volume button
